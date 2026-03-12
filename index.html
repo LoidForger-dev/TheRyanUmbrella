@@ -36,7 +36,7 @@
             overflow-x: hidden;
         }
 
-        /* Background image with dark overlay */
+        /* Background image with dark overlay - REDUCED OPACITY on gradient */
         body::before {
             content: "";
             position: fixed;
@@ -58,7 +58,7 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at 30% 40%, #0B0F1A 0%, #121829 90%);
-            opacity: 0.85;
+            opacity: 0.4;  /* was 0.85 - reduced for more background visibility */
             pointer-events: none;
             z-index: -1;
         }
@@ -726,4 +726,4 @@
         })();
     </script>
 </body>
-                      </html>
+</html>
