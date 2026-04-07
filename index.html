@@ -490,6 +490,40 @@
             color: #8A5CFF;
         }
 
+        /* NEW: X Feed section styling */
+        .x-feed-container {
+            background: rgba(18, 24, 41, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 1px solid rgba(138, 92, 255, 0.3);
+            padding: 2rem 1.5rem;
+            max-width: 780px;
+            margin: 2rem auto 0;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+        .x-feed-container:hover {
+            border-color: #3A86FF;
+            box-shadow: 0 0 28px #3A86FF55;
+        }
+        .x-timeline-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 550px;
+            background: transparent;
+        }
+        .twitter-timeline {
+            width: 100% !important;
+            max-width: 100%;
+        }
+        .x-feed-loading {
+            text-align: center;
+            padding: 3rem;
+            color: #A0A7B8;
+            font-size: 1.2rem;
+        }
+
         /* footer vertical links */
         footer {
             padding: 4rem 2rem 2rem;
@@ -547,6 +581,7 @@
             .card-grid { grid-template-columns: 1fr; }
             .roadmap-grid { flex-direction: column; }
             .footer-content { flex-direction: column; gap: 2rem; }
+            .x-feed-container { padding: 1.2rem; }
         }
     </style>
 </head>
@@ -561,7 +596,7 @@
             <li><a href="#services">Services</a></li>
             <li><a href="#ecosystem">Ecosystem</a></li>
             <li><a href="#roadmap">Roadmap</a></li>
-            <!-- Contact link removed -->
+            <li><a href="#x-feed">X Feed</a></li>
         </ul>
         <a href="#contact" style="text-decoration: none;"><button class="nav-btn">Partner With Us</button></a>
     </nav>
@@ -643,6 +678,27 @@
         </div>
     </section>
 
+    <!-- NEW SECTION: Embedded X (Twitter) Feed from @RyanUmbrella -->
+    <section id="x-feed" style="background: #0B0F1A;">
+        <div class="container">
+            <h2>Live X Updates</h2>
+            <p class="section-intro">Stay connected with the latest news, announcements, and community conversations from <strong style="color:#3A86FF;">@RyanUmbrella</strong> on X (formerly Twitter).</p>
+            <div class="x-feed-container">
+                <div class="x-timeline-wrapper" id="x-timeline-embed">
+                    <div class="x-feed-loading">
+                        <i class="fab fa-twitter" style="font-size: 2rem; margin-right: 0.5rem;"></i> Loading latest posts from Ryan Umbrella...
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="https://x.com/RyanUmbrella" target="_blank" rel="noopener noreferrer" style="color: #8A5CFF; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(138,92,255,0.15); padding: 0.5rem 1.5rem; border-radius: 40px; transition: 0.2s;">
+                    <i class="fab fa-twitter"></i> Follow @RyanUmbrella on X
+                    <i class="fas fa-external-link-alt" style="font-size: 0.8rem;"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section with form & X link -->
     <section id="contact" style="background: #121829;">
         <div class="container">
@@ -695,11 +751,78 @@
                 <a href="#services">Services</a>
                 <a href="#roadmap">Roadmap</a>
                 <a href="#contact">Contact</a>
+                <a href="#x-feed">X Feed</a>
             </div>
         </div>
         <hr>
         <div style="text-align: center; color: #3f4a66;">© 2026 The Ryan Umbrella LLC. All rights reserved.</div>
     </footer>
+
+    <!-- Twitter/X Widget Script: embedded timeline for @RyanUmbrella -->
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <!-- Manual fallback to replace loading state with timeline element once widget ready -->
+    <script>
+        (function() {
+            // Prepare the timeline embed after widget script loads
+            const container = document.getElementById('x-timeline-embed');
+            if (!container) return;
+            
+            // Function to inject the twitter timeline anchor
+            function injectTimeline() {
+                // Clear loading indicator
+                container.innerHTML = '';
+                // Create anchor element required by Twitter widgets
+                const anchor = document.createElement('a');
+                anchor.className = 'twitter-timeline';
+                anchor.setAttribute('data-theme', 'dark');
+                anchor.setAttribute('data-height', '550');
+                anchor.setAttribute('data-chrome', 'noheader nofooter noborders transparent');
+                anchor.setAttribute('href', 'https://x.com/RyanUmbrella');
+                anchor.setAttribute('data-tweet-limit', '5');
+                anchor.textContent = 'Tweets by @RyanUmbrella';
+                container.appendChild(anchor);
+                
+                // If twttr widgets exist, force load; otherwise, it will auto-render because async script loaded
+                if (window.twttr && window.twttr.widgets) {
+                    window.twttr.widgets.load();
+                }
+            }
+            
+            // Wait for the Twitter widget script to fully load and twttr object ready
+            function waitForTwttr() {
+                if (window.twttr && window.twttr.widgets) {
+                    injectTimeline();
+                } else {
+                    setTimeout(waitForTwttr, 200);
+                }
+            }
+            
+            // Ensure the async script loads, but if already loaded (cached) start immediately
+            if (document.querySelector('script[src*="platform.twitter.com/widgets.js"]')) {
+                waitForTwttr();
+            } else {
+                // fallback: monitor script load (though script already added above)
+                const script = document.querySelector('script[src*="platform.twitter.com/widgets.js"]');
+                if (script) {
+                    script.onload = function() {
+                        waitForTwttr();
+                    };
+                } else {
+                    // final fallback: direct injection after timeout
+                    setTimeout(injectTimeline, 800);
+                }
+            }
+            
+            // Also provide a backup: if after 2.5 seconds timeline not rendered, retry
+            setTimeout(function() {
+                if (container.children.length === 0 || container.children[0]?.tagName !== 'A') {
+                    injectTimeline();
+                } else if (window.twttr && window.twttr.widgets) {
+                    window.twttr.widgets.load();
+                }
+            }, 2500);
+        })();
+    </script>
 
     <!-- Scroll animation script (fade-in) -->
     <script>
